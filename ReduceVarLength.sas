@@ -1,5 +1,7 @@
-
-*Reduce the length of character variables to maximum length of real values for each dataset;
+/*
+Author: Ryan Yu
+Purpose: Reduce the length of character variables to maximum length of real values in each dataset;
+*/
 
 libname original '...';
 libname reduced '...';
@@ -19,15 +21,14 @@ data domain;
 run;
 
 data _null_;
-    set domain end=eof;
-    call symput('domain'||trim(left(trim(put(_n_,4.)))),trim(Memname));
-    call symput('name'||trim(left(trim(put(_n_,4.)))),trim(Name));
-    if eof then call symput('varno',trim(left(trim(put(_n_,4.)))));
+	set domain end=eof;
+	call symput('domain'||trim(left(trim(put(_n_,4.)))),trim(Memname));
+	call symput('name'||trim(left(trim(put(_n_,4.)))),trim(Name));
+	if eof then call symput('varno',trim(left(trim(put(_n_,4.)))));
 run;
 
 *get max length of each character variable based on current data;
 %macro getmaxlen();
-
 %do i=1 %to &varno.;
 	data varlen;
 		set &orig_loc..&&domain&i..;
@@ -44,7 +45,6 @@ run;
 		by memname name;
 	run;
 %end;
-
 %mend getmaxlen;
 
 %getmaxlen();
@@ -63,10 +63,10 @@ proc sql;
 quit;
 
 data _null_;
-    set memname end=eof;
-    call symput('mem'||trim(left(trim(put(_n_,2.)))),trim(Memname));
+	set memname end=eof;
+  call symput('mem'||trim(left(trim(put(_n_,2.)))),trim(Memname));
 	call symput('memlbl'||trim(left(trim(put(_n_,2.)))),trim(MEMLABEL));
-    if eof then call symput('memno',trim(left(trim(put(_n_,2.)))));
+  if eof then call symput('memno',trim(left(trim(put(_n_,2.)))));
 run;
 
 proc sql noprint;
@@ -75,7 +75,6 @@ proc sql noprint;
 quit;
 
 %macro correctlen();
-
 %do i=1 %to &memno.;
 	*identify which variables need length update;
 	proc sql noprint;
@@ -102,12 +101,11 @@ quit;
 		keep &names.;
 	run;
 %end;
-
 %mend correctlen;
 
 %correctlen;
 
 *copy over the data that do not need update;
 proc copy in=&orig_loc. out=&redu_loc. memtype=data;
-    exclude &dschg.;
+	exclude &dschg.;
 run;
